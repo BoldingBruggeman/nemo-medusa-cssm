@@ -46,7 +46,7 @@ def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: 
 if __name__ == '__main__':
    parser = argparse.ArgumentParser()
    parser.add_argument('target')
-   parser.add_argument('--source', default='/gws/nopw/j04/nemo_vol2/ROAM/????/*_1m_*_ptrc_T_.nc')
+   parser.add_argument('--source', default='/gws/nopw/j04/nemo_vol2/ROAM/????/*_1m_*_ptrc_T_*.nc')
    parser.add_argument('--minlat', type=float, default=-91)
    parser.add_argument('--maxlat', type=float, default=91)
    parser.add_argument('--minlon', type=float, default=-361)
@@ -54,6 +54,9 @@ if __name__ == '__main__':
    arguments = parser.parse_args()
 
    paths = glob.glob(arguments.source)
+   print('%i files found.' % len(paths))
+   if not paths:
+      sys.exit(1)
    paths.sort()
 
    valid = True
