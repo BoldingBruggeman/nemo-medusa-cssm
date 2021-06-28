@@ -23,10 +23,10 @@ chunk = True
 
 def get_time_variable(path: str) -> Optional[Tuple[str, str, str]]:
    with netCDF4.Dataset(path) as nc:
-      for ncvar in nc.variables:
+      for name, ncvar in nc.variables.items():
          if ncvar.dimensions == ('time_counter',):
-            return ncvar.name, ncvar.units, ncvar.calendar
-   
+            return name, ncvar.units, ncvar.calendar
+
 def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[Tuple]=None, **kwargs_in):
    if dimensions is None:
       dimensions = ncvar.dimensions
@@ -51,6 +51,7 @@ if __name__ == '__main__':
    parser.add_argument('--maxlat', type=float, default=91)
    parser.add_argument('--minlon', type=float, default=-361)
    parser.add_argument('--maxlon', type=float, default=361)
+   parser.add_argument('--check', action='store_true')
    arguments = parser.parse_args()
 
    paths = glob.glob(arguments.source)
@@ -60,9 +61,10 @@ if __name__ == '__main__':
    paths.sort()
 
    valid = True
-   for path in paths:
-      valid = check_file(path, medusa_names) and valid
-      valid = check_file(path.replace('_ptrc_T_', '_grid_T_'), (temp_name,)) and valid
+   if arguments.check:
+      for path in paths:
+         valid = check_file(path, medusa_names) and valid
+         valid = check_file(path.replace('_ptrc_T_', '_grid_T_'), (temp_name,)) and valid
    if not valid:
       sys.exit(1)
 
