@@ -27,7 +27,7 @@ def get_time_variable(path: str) -> Optional[Tuple[str, str, str]]:
          if ncvar.dimensions == ('time_counter',):
             return name, ncvar.units, ncvar.calendar
 
-def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[Tuple]=None, **kwargs_in):
+def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[Tuple[str, ...]]=None, **kwargs_in):
    if dimensions is None:
       dimensions = ncvar.dimensions
    kwargs = {}
