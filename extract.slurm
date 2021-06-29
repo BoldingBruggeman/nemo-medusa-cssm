@@ -5,5 +5,5 @@
 #SBATCH --time=48:00
 
 module load jaspy
-conda activate ssw
+conda activate nemo-medusa-cssm
 python -u ./extract.py ./nemo-medusa-WIO.nc --minlon=20 --maxlon=78 --minlat=-38 --maxlat=25 > ./nemo-medusa-WIO.nc.log
