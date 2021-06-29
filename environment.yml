@@ -1,0 +1,13 @@
+name: nemo-medusa-cssm
+channels:
+  - conda-forge
+dependencies:
+  - python=3.8
+  - fortran-compiler
+  - netcdf-fortran
+  - cmake
+  - numpy
+  - matplotlib
+  - scipy
+  - netcdf4
+  - pyyaml

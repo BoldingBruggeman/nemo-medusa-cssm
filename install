@@ -1,0 +1,10 @@
+# This script is intended to be source'd, not executed
+
+REPO_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+WORK_DIR=`mktemp -d`
+cd ${WORK_DIR}
+cmake ${REPO_DIR}/extern/fabm/src/drivers/python -DFABM_INSTITUTES="mizer" -DFABM_MIZER_BASE=${REPO_DIR}/extern/fabm-mizer
+make install
+cd -
+rm -rf ${WORK_DIR}
