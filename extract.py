@@ -52,6 +52,7 @@ if __name__ == '__main__':
    parser.add_argument('--minlon', type=float, default=-361)
    parser.add_argument('--maxlon', type=float, default=361)
    parser.add_argument('--check', action='store_true')
+   parser.add_argument('--resume', action='store_true')
    arguments = parser.parse_args()
 
    paths = glob.glob(arguments.source)
@@ -97,13 +98,13 @@ if __name__ == '__main__':
    print('  longitude: %s - %s' % (lon.min(), lon.max()))
    print('  latitude: %s - %s' % (lat.min(), lat.max()))
 
-   valid_lon = numpy.logical_and(lon > arguments.minlon, lon < arguments.maxlon)
-   valid_lat = numpy.logical_and(lat > arguments.minlat, lat < arguments.maxlat)
+   valid_lon = numpy.logical_and(lon >= arguments.minlon, lon <= arguments.maxlon)
+   valid_lat = numpy.logical_and(lat >= arguments.minlat, lat <= arguments.maxlat)
    valid = numpy.logical_and(valid_lon, valid_lat)
    iy, ix = valid.nonzero()
 
-   imin, imax = ix.min(), ix.max()
-   jmin, jmax = iy.min(), iy.max()
+   imin, imax = ix.min(), ix.max() + 1
+   jmin, jmax = iy.min(), iy.max() + 1
    print('Slicing:')
    print('  x: %i - %i' % (imin, imax))
    print('  y: %i - %i' % (jmin, jmax))
@@ -170,7 +171,7 @@ if __name__ == '__main__':
                   biomass = sum(alldata[1:]) # skip temperature!
                   weights = biomass * thickness[:, numpy.newaxis, numpy.newaxis]
                   weights_int = weights.sum(axis=0)
-                  weights2_int = (biomass**2 * thickness[:, numpy.newaxis, numpy.newaxis]).sum(axis=0)
+                  weights2_int = (biomass * weights).sum(axis=0)
                   ncw_int_out[iout, :, :] = weights_int
                   ncw2_int_out[iout, :, :] = weights2_int
                   weights /= weights_int[numpy.newaxis, :, :]
