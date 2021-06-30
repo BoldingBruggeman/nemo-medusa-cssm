@@ -3,6 +3,8 @@ channels:
   - conda-forge
 dependencies:
   - python=3.8
+  - anaconda
+  - pip
   - fortran-compiler
   - cmake
   - numpy
@@ -10,3 +12,5 @@ dependencies:
   - scipy
   - netcdf4
   - pyyaml
+  - pip:
+    - https://www.parallelpython.com/downloads/pp/pp-1.6.4.4.zip
