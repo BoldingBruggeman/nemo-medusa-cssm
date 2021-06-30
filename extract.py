@@ -6,7 +6,7 @@ import os.path
 import sys
 import numpy
 import netCDF4
-from typing import Optional
+from typing import Optional, Union
 from collections.abc import Iterable
 
 medusa_names = 'PHN', 'PHD', 'ZMI', 'ZME'
@@ -24,12 +24,16 @@ compress = False
 contiguous = False
 chunk = True
 
-def get_time(path: str) -> tuple[str, str, str, numpy.ndarray]:
-   with netCDF4.Dataset(path) as nc:
-      for name, ncvar in nc.variables.items():
-         if ncvar.dimensions == ('time_counter',):
-            return name, ncvar.units, ncvar.calendar, netCDF4.num2date(ncvar[:], ncvar.units, ncvar.calendar)
+def find_time_variable(nc: netCDF4.Dataset) -> netCDF4.Variable:
+   for ncvar in nc.variables.values():
+      if getattr(ncvar, 'standard_name', None) == 'time':
+         return ncvar
    raise Exception('Time coordinate not found.')
+
+def get_time(nc: str) -> tuple[str, str, str, numpy.ndarray]:
+   with netCDF4.Dataset(nc) as nc:
+      ncvar = find_time_variable(nc)
+      return ncvar.name, ncvar.units, ncvar.calendar, netCDF4.num2date(ncvar[:], ncvar.units, ncvar.calendar)
 
 def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[tuple[str, ...]]=None, **kwargs_in):
    if dimensions is None:
@@ -74,7 +78,7 @@ if __name__ == '__main__':
       sys.exit(1)
 
    print('Discovering time period:')
-   time_name, time_units, time_calendar = None, None, None
+   time_name, time_units, time_calendar, last_time = None, None, None, None
    start, stop = None, None
    ntime = 0
    for path in paths:
@@ -84,11 +88,14 @@ if __name__ == '__main__':
          time_name, time_units, time_calendar = current_time_name, current_time_units, current_time_calendar
       if current_time_name != time_name:
          print('    WARNING: different time coordinate name %s (first file(s) use %s). Value(s): %s' % (current_time_name, time_name, current_time))
+      if last_time is not None:
+         assert current_time[0] > last_time
       assert time_units == current_time_units
       assert time_calendar == current_time_calendar
       start = current_time[0] if start is None else min(start, current_time[0])
       stop = current_time[-1] if stop is None else max(stop, current_time[-1])
       ntime += current_time.size
+      last_time = current_time[-1]
    print('Time range: %s - %s' % (start.strftime('%Y-%m-%d'), stop.strftime('%Y-%m-%d')))
    print('Time count: %i' % ntime)
 
@@ -138,11 +145,9 @@ if __name__ == '__main__':
          print('Reading %s...' % path)
          physics_path = path.replace('_ptrc_T_', '_grid_T_')
 
-         with netCDF4.Dataset(path) as nc:
-            nctime = nc.variables['time_counter']
-            times = netCDF4.num2date(nctime[:], nctime.units, nctime.calendar)
-
          with netCDF4.Dataset(path) as nc, netCDF4.Dataset(physics_path) as nc_physics:
+            nctime = find_time_variable(nc)
+            times = netCDF4.num2date(nctime[:], nctime.units, nctime.calendar)
             nctemp = nc_physics.variables[temp_name]
 
             # Find target variables (prey biomasses)
@@ -159,7 +164,7 @@ if __name__ == '__main__':
                ncout.createDimension('y', ny)
                copy_variable(ncout, nc.variables['nav_lat'])[:, :] = lat
                copy_variable(ncout, nc.variables['nav_lon'])[:, :] = lon
-               nctime_out = copy_variable(ncout, nctime)
+               nctime_out = copy_variable(ncout, nctime, name='time_counter')
                kwargs = {}
                if chunk:
                   kwargs['chunksizes'] = (ntime, 1, 1)
