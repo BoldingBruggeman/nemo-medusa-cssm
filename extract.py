@@ -24,11 +24,12 @@ compress = False
 contiguous = False
 chunk = True
 
-def get_time_variable(path: str) -> Optional[tuple[str, str, str]]:
+def get_time(path: str) -> tuple[str, str, str, numpy.ndarray]:
    with netCDF4.Dataset(path) as nc:
       for name, ncvar in nc.variables.items():
          if ncvar.dimensions == ('time_counter',):
-            return name, ncvar.units, ncvar.calendar
+            return name, ncvar.units, ncvar.calendar, netCDF4.num2date(ncvar[:], ncvar.units, ncvar.calendar)
+   raise Exception('Time coordinate not found.')
 
 def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[tuple[str, ...]]=None, **kwargs_in):
    if dimensions is None:
@@ -72,19 +73,22 @@ if __name__ == '__main__':
    if not valid:
       sys.exit(1)
 
-   time_name, time_units, time_calendar = get_time_variable(paths[0])
-
    print('Discovering time period:')
+   time_name, time_units, time_calendar = None, None, None
    start, stop = None, None
    ntime = 0
    for path in paths:
       print('  - %s' % path)
-      with netCDF4.Dataset(path) as nc:
-         nctime = nc.variables[time_name]
-         time = netCDF4.num2date(nctime[:], nctime.units, nctime.calendar)
-         start = time[0] if start is None else min(start, time[0])
-         stop = time[-1] if stop is None else max(stop, time[-1])
-         ntime += time.size
+      current_time_name, current_time_units, current_time_calendar, current_time = get_time(path)
+      if time_name is None:
+         time_name, time_units, time_calendar = current_time_name, current_time_units, current_time_calendar
+      if current_time_name != time_name:
+         print('    WARNING: different time coordinate name %s (first file(s) use %s)' % (current_time_name, time_calendar))
+      assert time_units == current_time_units
+      assert time_calendar == current_time_calendar
+      start = current_time[0] if start is None else min(start, current_time[0])
+      stop = current_time[-1] if stop is None else max(stop, current_time[-1])
+      ntime += current_time.size
    print('Time range: %s - %s' % (start.strftime('%Y-%m-%d'), stop.strftime('%Y-%m-%d')))
    print('Time count: %i' % ntime)
 
