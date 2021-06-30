@@ -83,7 +83,7 @@ if __name__ == '__main__':
       if time_name is None:
          time_name, time_units, time_calendar = current_time_name, current_time_units, current_time_calendar
       if current_time_name != time_name:
-         print('    WARNING: different time coordinate name %s (first file(s) use %s)' % (current_time_name, time_calendar))
+         print('    WARNING: different time coordinate name %s (first file(s) use %s). Value(s): %s' % (current_time_name, time_name, current_time))
       assert time_units == current_time_units
       assert time_calendar == current_time_calendar
       start = current_time[0] if start is None else min(start, current_time[0])
