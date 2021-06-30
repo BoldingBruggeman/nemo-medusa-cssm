@@ -49,6 +49,10 @@ After submitting the job, you can check its status with
 squeue -l -u $USER
 ```
 
+The output of this command will show the job identifier ("JOBID").
+The output of the job itself will be written to `<JOBID>.out` and `<JOBID>.err`.
+You cna keep an eye on the progress of the job with `tail -f <JOBID>.out`.
+
 When the job completes, it should have created a single NetCDF file. The name of this file is set in `extract.sbatch` (the unnamed argument to `extract.py`).
 
 ### Running the Community Size Spectrum Model

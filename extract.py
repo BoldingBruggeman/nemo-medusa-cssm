@@ -112,9 +112,9 @@ if __name__ == '__main__':
       nc.set_auto_mask(False)
       lon = nc.variables['nav_lon'][:, :]
       lat = nc.variables['nav_lat'][:, :]
-      if masked_grid:
-         lon[lon==0] = masked_lonlat_value
-         lat[lat==0] = masked_lonlat_value
+   if masked_grid:
+      lon[lon == 0.] = masked_lonlat_value
+      lat[lat == 0.] = masked_lonlat_value
    lat_ma = numpy.ma.masked_equal(lat, masked_lonlat_value)
    lon_ma = numpy.ma.masked_equal(lon, masked_lonlat_value)
    ny, nx = lon.shape
@@ -122,6 +122,9 @@ if __name__ == '__main__':
    print('  size: nx=%i x ny=%i' % (nx, ny))
    print('  longitude: %s - %s' % (lon_ma.min(), lon_ma.max()))
    print('  latitude: %s - %s' % (lat_ma.min(), lat_ma.max()))
+   print('Requested region:')
+   print('  longitude: %s - %s' % (arguments.minlon, arguments.maxlon))
+   print('  latitude: %s - %s' % (arguments.minlat, arguments.maxlat))
 
    valid_lon = numpy.logical_and(lon >= arguments.minlon, lon <= arguments.maxlon)
    valid_lat = numpy.logical_and(lat >= arguments.minlat, lat <= arguments.maxlat)
