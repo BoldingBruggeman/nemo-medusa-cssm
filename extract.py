@@ -101,6 +101,20 @@ if __name__ == '__main__':
 
    #sys.exit(0)
 
+   def read_cyclic(ncvar, imin: int=0, imax: Optional[int]=None, preslice=(Ellipsis,)):
+      shift = ncvar.shape[-1] // 2
+      if imax is None:
+         imax = ncvar.shape[-1]
+      real_start = imin + shift
+      real_stop = imax + shift
+      left_start = max(0, real_start - ncvar.shape[-1])
+      left_stop = max(0, real_stop - ncvar.shape[-1])
+      left = ncvar[preslice + (slice(left_start, left_stop),)]
+      right_start = min(real_start, ncvar.shape[-1])
+      right_stop = min(real_stop, ncvar.shape[-1])
+      right = ncvar[preslice + (slice(right_start, right_stop),)]
+      return numpy.concatenate((right, left), axis=-1)
+
    masked_lonlat_value = -9999.
    grid_file = os.path.abspath(os.path.join(os.path.dirname(arguments.source), '..', '..', 'domain/mesh_zgr.nc'))
    masked_grid = False
@@ -110,8 +124,8 @@ if __name__ == '__main__':
       masked_grid = True
    with netCDF4.Dataset(grid_file) as nc:
       nc.set_auto_mask(False)
-      lon = nc.variables['nav_lon'][:, :]
-      lat = nc.variables['nav_lat'][:, :]
+      lon = read_cyclic(nc.variables['nav_lon'])
+      lat = read_cyclic(nc.variables['nav_lat'])
    if masked_grid:
       lon[lon == 0.] = masked_lonlat_value
       lat[lat == 0.] = masked_lonlat_value
@@ -195,7 +209,7 @@ if __name__ == '__main__':
             for itime, time in enumerate(times):
                print('  Processing %s...' % time.strftime('%Y-%m-%d'))
                if iout >= istart:
-                  alldata = [ncvariable[itime, :, jmin:jmax, imin:imax] for ncvariable in ncvariables]
+                  alldata = [read_cyclic(ncvariable, imin, imax, preslice=(itime, Ellipsis, slice(jmin, jmax))) for ncvariable in ncvariables]
                   biomass = sum(alldata[1:]) # skip temperature!
                   weights = biomass * thickness[:, numpy.newaxis, numpy.newaxis]
                   weights_int = weights.sum(axis=0)
