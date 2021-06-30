@@ -42,7 +42,10 @@ def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: 
    if chunk and 'time_counter' in dimensions:
       kwargs['chunksizes'] = [{'time_counter': ntime}.get(dim, 1) for dim in dimensions]
    if hasattr(ncvar, '_FillValue'):
-      kwargs.setdefault('fill_value', ncvar._FillValue)
+      kwargs['fill_value'] = ncvar._FillValue
+   for key, value in kwargs_in.items():
+      if key != 'name':
+         kwargs[key] = value
    ncvar_out = ncout.createVariable(kwargs_in.get('name', ncvar.name), ncvar.dtype, dimensions, zlib=compress, contiguous=contiguous, **kwargs)
    for key in ncvar.ncattrs():
       if key != '_FillValue':
