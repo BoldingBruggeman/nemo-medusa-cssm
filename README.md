@@ -6,9 +6,9 @@ This repository contains scripts for simulation with the Community Size Spectrum
 
 ### Set up
 
-After logging into one of JASMIN's "sci" machines (e.g., `sci2.jasmin.ac.uk`), first try running `conda`.
-If you have previouly used [JASMIN's Python environment](https://help.jasmin.ac.uk/article/4729-jaspy-envs), that should work.
-Otherwise, if you get "command not found", do the following:
+After logging into one of JASMIN's [scientific analysis servers (e.g., `sci2.jasmin.ac.uk`)](https://help.jasmin.ac.uk/article/121-sci-servers), first try running `conda`.
+If you have previouly used [JASMIN's Python environment](https://help.jasmin.ac.uk/article/4729-jaspy-envs), this command should work.
+Alternatively, if you get "command not found", do the following:
 
 ```
 module load jaspy
@@ -35,13 +35,13 @@ This sets up a new, isolated Python environment. Note that this can later be rem
 
 ### Extracting NEMO-MEDUSA outputs
 
-This is done by Python script `extract.py`. However, as this a non-parallelized job that can take over 24 hours, it is done on [the `long-serial` queue](https://help.jasmin.ac.uk/article/4881-lotus-queues) by submitting it to [the SLURM scheduler](https://help.jasmin.ac.uk/article/4880-batch-scheduler-slurm-overview). For this purpose, the `extract.sbatch` job submission script is provided. Use it like this:
+This is done by Python script `extract.py`. As this a non-parallelized job that can take over 24 hours, it is done on [the `long-serial` queue](https://help.jasmin.ac.uk/article/4881-lotus-queues) by submitting it to [the SLURM scheduler](https://help.jasmin.ac.uk/article/4880-batch-scheduler-slurm-overview). For this purpose, the `extract.sbatch` job submission script is provided. Use it like this:
 
 ```
 sbatch extract.sbatch
 ```
 
-Note that inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you would want to operate on a different region, either modify the script in-place, or create a copy and modify that.
+**Note:** inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you want to extract data for a different region or change the name of the output file, either modify the script in-place, or create a copy and modify that.
 
 After submitting the job, you can check its status with
 
@@ -49,7 +49,7 @@ After submitting the job, you can check its status with
 squeue -l -u $USER
 ```
 
-When the job completes, it should have created a single NetCDF file. The name of this file is set in `extract.sbatch` (first unnamed argument to `extract.py`).
+When the job completes, it should have created a single NetCDF file. The name of this file is set in `extract.sbatch` (the unnamed argument to `extract.py`).
 
 ### Running the Community Size Spectrum Model
 
