@@ -1,10 +1,13 @@
+from __future__ import annotations
+
 import argparse
 import glob
 import os.path
 import sys
 import numpy
 import netCDF4
-from typing import Iterable, Optional, Tuple
+from typing import Optional
+from collections.abc import Iterable
 
 medusa_names = 'PHN', 'PHD', 'ZMI', 'ZME'
 temp_name = 'votemper'
@@ -21,13 +24,13 @@ compress = False
 contiguous = False
 chunk = True
 
-def get_time_variable(path: str) -> Optional[Tuple[str, str, str]]:
+def get_time_variable(path: str) -> Optional[tuple[str, str, str]]:
    with netCDF4.Dataset(path) as nc:
       for name, ncvar in nc.variables.items():
          if ncvar.dimensions == ('time_counter',):
             return name, ncvar.units, ncvar.calendar
 
-def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[Tuple[str, ...]]=None, **kwargs_in):
+def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: Optional[tuple[str, ...]]=None, **kwargs_in):
    if dimensions is None:
       dimensions = ncvar.dimensions
    kwargs = {}
