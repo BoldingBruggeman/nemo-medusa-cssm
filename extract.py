@@ -130,8 +130,9 @@ if __name__ == '__main__':
       lon = read_cyclic(nc.variables['nav_lon'])
       lat = read_cyclic(nc.variables['nav_lat'])
    if masked_grid:
-      lon[lon == 0.] = masked_lonlat_value
-      lat[lat == 0.] = masked_lonlat_value
+      mask = numpy.logical_and(lon == 0., lat == 0.)
+      lon[mask] = masked_lonlat_value
+      lat[mask] = masked_lonlat_value
    lat_ma = numpy.ma.masked_equal(lat, masked_lonlat_value)
    lon_ma = numpy.ma.masked_equal(lon, masked_lonlat_value)
    ny, nx = lon.shape
