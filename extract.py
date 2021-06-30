@@ -42,7 +42,7 @@ def copy_variable(ncout: netCDF4.Variable, ncvar: netCDF4.Variable, dimensions: 
    if chunk and 'time_counter' in dimensions:
       kwargs['chunksizes'] = [{'time_counter': ntime}.get(dim, 1) for dim in dimensions]
    if hasattr(ncvar, '_FillValue'):
-      kwargs['fill_value'] = ncvar._FillValue
+      kwargs.setdefault('fill_value', ncvar._FillValue)
    ncvar_out = ncout.createVariable(kwargs_in.get('name', ncvar.name), ncvar.dtype, dimensions, zlib=compress, contiguous=contiguous, **kwargs)
    for key in ncvar.ncattrs():
       if key != '_FillValue':
@@ -101,16 +101,27 @@ if __name__ == '__main__':
 
    #sys.exit(0)
 
+   masked_lonlat_value = -9999.
    grid_file = os.path.abspath(os.path.join(os.path.dirname(arguments.source), '..', '..', 'domain/mesh_zgr.nc'))
+   masked_grid = False
+   if not os.path.isfile(grid_file):
+      print('WARNING: grid file %s not found. Reading coordinates from %s.' % (grid_file, paths[0]))
+      grid_file = paths[0]
+      masked_grid = True
    with netCDF4.Dataset(grid_file) as nc:
       nc.set_auto_mask(False)
       lon = nc.variables['nav_lon'][:, :]
       lat = nc.variables['nav_lat'][:, :]
+      if masked_grid:
+         lon[lon==0] = masked_lonlat_value
+         lat[lat==0] = masked_lonlat_value
+   lat_ma = numpy.ma.masked_equal(lat, masked_lonlat_value)
+   lon_ma = numpy.ma.masked_equal(lon, masked_lonlat_value)
    ny, nx = lon.shape
    print('Input grid:')
    print('  size: nx=%i x ny=%i' % (nx, ny))
-   print('  longitude: %s - %s' % (lon.min(), lon.max()))
-   print('  latitude: %s - %s' % (lat.min(), lat.max()))
+   print('  longitude: %s - %s' % (lon_ma.min(), lon_ma.max()))
+   print('  latitude: %s - %s' % (lat_ma.min(), lat_ma.max()))
 
    valid_lon = numpy.logical_and(lon >= arguments.minlon, lon <= arguments.maxlon)
    valid_lat = numpy.logical_and(lat >= arguments.minlat, lat <= arguments.maxlat)
@@ -124,11 +135,13 @@ if __name__ == '__main__':
    print('  y: %i - %i' % (jmin, jmax))
    lat = lat[jmin:jmax, imin:imax]
    lon = lon[jmin:jmax, imin:imax]
+   lat_ma = numpy.ma.masked_equal(lat, masked_lonlat_value)
+   lon_ma = numpy.ma.masked_equal(lon, masked_lonlat_value)
    ny, nx = lon.shape
    print('Output grid:')
    print('  size: nx=%i x ny=%i' % (nx, ny))
-   print('  longitude: %s - %s' % (lon.min(), lon.max()))
-   print('  latitude: %s - %s' % (lat.min(), lat.max()))
+   print('  longitude: %s - %s' % (lon_ma.min(), lon_ma.max()))
+   print('  latitude: %s - %s' % (lat_ma.min(), lat_ma.max()))
 
    mode = 'r+' if os.path.isfile(arguments.target) and arguments.resume else 'w'
    iout = 0
@@ -162,8 +175,8 @@ if __name__ == '__main__':
                ncout.createDimension('time_counter', ntime)
                ncout.createDimension('x', nx)
                ncout.createDimension('y', ny)
-               copy_variable(ncout, nc.variables['nav_lat'])[:, :] = lat
-               copy_variable(ncout, nc.variables['nav_lon'])[:, :] = lon
+               copy_variable(ncout, nc.variables['nav_lat'], fill_value=masked_lonlat_value)[:, :] = lat_ma
+               copy_variable(ncout, nc.variables['nav_lon'], fill_value=masked_lonlat_value)[:, :] = lon_ma
                nctime_out = copy_variable(ncout, nctime, name='time_counter')
                kwargs = {}
                if chunk:
