@@ -64,6 +64,7 @@ if __name__ == '__main__':
    parser.add_argument('--maxlon', type=float, default=361)
    parser.add_argument('--check', action='store_true')
    parser.add_argument('--resume', action='store_true')
+   parser.add_argument('-n', type=int, help='Number of files to process (for debugging only)')
    arguments = parser.parse_args()
 
    paths = glob.glob(arguments.source)
@@ -71,6 +72,8 @@ if __name__ == '__main__':
    if not paths:
       sys.exit(1)
    paths.sort()
+   if arguments.n is not None:
+      paths = paths[:arguments.n]
 
    valid = True
    if arguments.check:
