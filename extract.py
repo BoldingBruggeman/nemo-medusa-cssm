@@ -228,4 +228,4 @@ if __name__ == '__main__':
             if iout >= istart:
                ncout.sync()
 
-
+   print('Extraction complete')

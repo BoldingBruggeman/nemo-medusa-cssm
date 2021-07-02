@@ -41,7 +41,9 @@ This is done by Python script `extract.py`. As this a non-parallelized job that 
 sbatch extract.sbatch
 ```
 
-**Note:** inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you want to extract data for a different region or change the name of the output file, either modify the script in-place, or create a copy and modify that.
+**Notes:**
+* Inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you want to extract data for a different region or change the name of the output file, either modify the script in-place, or create a copy and modify that.
+* This script can take a long time! For instance, extracting 1993-2099 at monthly resolution for 20-78 degrees East, -38 - 25 degrees North took 15 hours and 30 minutes (and it first spent 19 hours waiting in the queue!) The current maximum runtime is set to 48 hours in `extract.sbatch` with the line `#SBATCH --time=48:00:00`. You may wait to change that, e.g., when extracting data at higher temporal resolution. That can be done by editing `extract.sbatch`, or by specifying a custom maximum runtime to sbatch with argument `--time=HH:MM:SS`. [Note that the `long-serial` queue currently has a maximum runtime of 168 hours = 7 days.](https://help.jasmin.ac.uk/article/4881-lotus-queues)
 
 After submitting the job, you can check its status with
 
@@ -51,9 +53,9 @@ squeue -l -u $USER
 
 The output of this command will show the job identifier ("JOBID").
 The output of the job itself will be written to `<JOBID>.out` and `<JOBID>.err`.
-You cna keep an eye on the progress of the job with `tail -f <JOBID>.out`.
+You can keep an eye on the progress of the job with `tail -f <JOBID>.out`.
 
-When the job completes, it should have created a single NetCDF file. The name of this file is set in `extract.sbatch` (the unnamed argument to `extract.py`).
+When the job completes, it should have created a single NetCDF file. The name of this file is set in `extract.sbatch` (the unnamed argument to `extract.py`). You can verify whether the job completed successfully by verifying whether the output file (`<JOBID>.out`) ends with "Extraction complete".
 
 ### Running the Community Size Spectrum Model
 
