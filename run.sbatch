@@ -25,4 +25,4 @@ srun ppserver.py -w $SLURM_CPUS_ON_NODE -t 3600 -s $secret -p $port -r &
 
 # launch the parallel processing
 mkdir -p results
-python -u run.py ${name}.nc results/${name} --ppservers $SLURM_JOB_NODELIST:$port --ncpus 0 --secret=$secret --debug --parameters=mizer-amm7.yaml
+python -u run.py ${name}.nc results/${name} --ppservers $SLURM_JOB_NODELIST:$port --ncpus 0 --secret=$secret --debug
