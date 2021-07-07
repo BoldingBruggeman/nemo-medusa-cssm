@@ -43,7 +43,7 @@ sbatch extract.sbatch
 
 **Notes:**
 * Inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you want to extract data for a different region or change the name of the output file, either modify the script in-place, or create a copy and modify that.
-* This script can take a long time! For instance, extracting 1993-2099 at monthly resolution for 20-78 degrees East, -38 - 25 degrees North took 15 hours and 30 minutes (and it first spent 19 hours waiting in the queue!) The current maximum runtime is set to 48 hours in `extract.sbatch` with the line `#SBATCH --time=48:00:00`. You may wait to change that, e.g., when extracting data at higher temporal resolution. That can be done by editing `extract.sbatch`, or by specifying a custom maximum runtime to sbatch with argument `--time=HH:MM:SS`. [Note that the `long-serial` queue currently has a maximum runtime of 168 hours = 7 days.](https://help.jasmin.ac.uk/article/4881-lotus-queues)
+* This script can take a long time! For instance, extracting 1993-2099 at monthly resolution for 20 - 78 degrees East, -38 - 25 degrees North takes 12-15 hours (and on a weekday in July it first spent 19 hours waiting in the queue!) The current maximum runtime is set to 48 hours in `extract.sbatch` with the line `#SBATCH --time=48:00:00`. You may want to change that, e.g., when extracting data at higher temporal resolution. That can be done by editing `extract.sbatch`, or by specifying a custom maximum runtime to sbatch with argument `--time=<HH:MM:SS>`. [Note that the `long-serial` queue currently has a maximum runtime of 168 hours = 7 days.](https://help.jasmin.ac.uk/article/4881-lotus-queues)
 
 After submitting the job, you can check its status with
 
@@ -59,5 +59,14 @@ When the job completes, it should have created a single NetCDF file. The name of
 
 ### Running the Community Size Spectrum Model
 
+This is done by Python script `run.py`. Each horizontal grid point is processed independently, as there is no horzontal exchange or movement of predators between grid cells. The simulation is parallized using [Parallel Python](https://www.parallelpython.com/), which farms out each task (one per grid point) to nodes allocated by the queuing system. As soon as one task completes on anode/core, the next is started. Thus, the more nodes/cores you allocate to the job, the quicker it will be done - with a maximum equal to the total number of grid points.
 
+On JASMIN, simulations are done on [the `par-multi` queue](https://help.jasmin.ac.uk/article/4881-lotus-queues) by submitting it to [the SLURM scheduler](https://help.jasmin.ac.uk/article/4880-batch-scheduler-slurm-overview). For this purpose, the `run.sbatch` job submission script is provided. Use it like this:
 
+```
+sbatch run.sbatch
+```
+
+You can customize the number of nodes and the maximum runtime by editing `run.sbatch`, or by providing additional arguments `--nodes=<N>` and `--time=<HH:MM:SS>` to `sbatch`.
+
+You cna check the status of your job as describe din the previous section.
