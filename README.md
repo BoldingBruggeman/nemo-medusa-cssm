@@ -59,7 +59,7 @@ When the job completes, it should have created a single NetCDF file. The name of
 
 ### Running the Community Size Spectrum Model
 
-This is done by Python script `run.py`. Each horizontal grid point is processed independently, as there is no horzontal exchange or movement of predators between grid cells. The simulation is parallized using [Parallel Python](https://www.parallelpython.com/), which farms out each task (one per grid point) to nodes allocated by the queuing system. As soon as one task completes on anode/core, the next is started. Thus, the more nodes/cores you allocate to the job, the quicker it will be done - with a maximum equal to the total number of grid points.
+This is done by Python script `run.py`. Each horizontal grid point is processed independently, as there is no horizontal exchange or movement of predators between grid cells. The simulation is parallized using [Parallel Python](https://www.parallelpython.com/), which farms out each task (one per grid point) to nodes allocated by the queuing system. As soon as one task completes on a node/core, the next is started. Thus, the more nodes/cores you allocate to the job, the quicker it will be done - with a maximum equal to the total number of grid points.
 
 On JASMIN, simulations are done on [the `par-multi` queue](https://help.jasmin.ac.uk/article/4881-lotus-queues) by submitting it to [the SLURM scheduler](https://help.jasmin.ac.uk/article/4880-batch-scheduler-slurm-overview). For this purpose, the `run.sbatch` job submission script is provided. Use it like this:
 
@@ -69,4 +69,4 @@ sbatch run.sbatch
 
 You can customize the number of nodes and the maximum runtime by editing `run.sbatch`, or by providing additional arguments `--nodes=<N>` and `--time=<HH:MM:SS>` to `sbatch`.
 
-You cna check the status of your job as describe din the previous section.
+You can check the status of your job as described in the previous section.
