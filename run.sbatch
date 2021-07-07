@@ -13,7 +13,7 @@ conda activate nemo-medusa-cssm
 secret=`cat /dev/urandom | tr -cd 'a-f0-9' | head -c 32`
 
 # Pick IP port for Parallel Python communication (IANA: use 49152 to 65535 for dynamic/private ports)
-port=`python -c 'import random; print random.randint(49152,65535)'`
+port=`python -c 'import random; print(random.randint(49152,65535))'`
 
 name=nemo-medusa-WIO
 
