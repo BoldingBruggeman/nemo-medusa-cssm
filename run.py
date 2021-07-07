@@ -23,44 +23,61 @@ sys.path.insert(0, './extern/fabm-mizer/python')
 import mizer
 
 # Function for converting from Equivalent Spherical Diameter (micrometer) to wet mass in g
-def esd2mass(*d): # d: equivalent spherical diameter in micrometer
-    V = 4. / 3. * numpy.pi * (numpy.array(d) / 2e6)**3  # V: volume in m3
+def esd2mass(d): # d: equivalent spherical diameter in micrometer
+    V = 4./3. * numpy.pi * (numpy.array(d) / 2e6)**3  # V: volume in m3
     return V * 1e6  # mass in g approximately equals volume in m3 multiplied by 1e6 (assumes density of 1000 kg/m3)
 
+w_esd2, w_esd20, w_esd200 = esd2mass([2., 20., 200.])
+
 preylist = []
-preylist.append(('diatoms', 'PHD', esd2mass(20., 200.), 6.625))
-preylist.append(('non-diatoms', 'PHN',   esd2mass(2., 20.), 6.625))
-preylist.append(('microzooplankton', 'ZMI', esd2mass(20., 200.), 5.625))
-preylist.append(('mesozooplankton', 'ZME', (1e-5, 1e-3), 5.625))
+preylist.append(('diatoms',          'PHD', (w_esd20,  w_esd200), 6.625))
+preylist.append(('non-diatoms',      'PHN', (w_esd2,   w_esd20 ), 6.625))
+preylist.append(('microzooplankton', 'ZMI', (w_esd20,  w_esd200), 5.625))
+preylist.append(('mesozooplankton',  'ZME', (w_esd200, 1e-3    ), 5.625))
 temp_name = 'votemper'
 time_name = 'time_counter'
 
-# mizer parameters
-parameters = {
-    'w_min': 1e-3,
-    'w_inf': 1e6,
-    'nclass': 100,
-    'T_dependence': 1,
-    'T_ref': 13.,
-    'E_a': 0.63,
-    'beta': 100,
-    'sigma': float(numpy.log(10.)),   # paper has log10 units, we use ln units
-    'gamma': 156, # clearance in m3/yr for single individual of mass 1 g. Blanchard et al 2009: 640 m3/yr; Blanchard et al 2012: 64 ?UNITS? [times kappa=0.5 for time spent in pelagic]; Faking giants paper gives 10^14.076 * W^0.926 * exp(-Ea/(kT) L d-1, which is 428 L d-1 = 156 m3 yr-1
-    'q': 0.82,
-    'alpha': 0.2,
-    'z0_type': 1,
-    'z0pre': 0.1,
-    'z0exp': -0.25,
-    'w_s': 1000.,
-    'z_s': 0.3,
-    'ks': 0.,
-    'SRR': 0,
-    'recruitment': 0.,
-    'h': 1e9,
-    'fishing_type': 1,
-    'w_minF': 1.25, # Blanchard et al 2012
-    'F': 0.4 #8  # note: need to put double the intended value due to fisheries equation!
-}
+# Parameters of the size spectrum model (mizer, http://dx.doi.org/10.1111/2041-210X.12256)
+parameters = dict(
+    # spectrum partition
+    w_min=1e-3,                   # minimum size for the predator spectrum (g)
+    w_inf=1e6,                    # maximum size for the predator spectrum (g)
+    nclass=100,                   # number of size classes for the predator spectrum
+
+    # temperature dependence
+    T_dependence=1,               # temperature dependence of rates (0=none, 1=Arrhenius)
+    T_ref=13.,                    # reference temperature at which all rates must be given (degrees Celsius)
+    E_a=0.63,                     # activation energy for Arrhenius relationship (eV)
+
+    # predator-prey preference
+    beta=100,                     # optimal predator : prey wet mass ratio (-)
+    sigma=float(numpy.log(10.)),  # standard devation of predator-prey preference (ln g)
+
+    # clearance, ingestion, growth efficiency
+    gamma=156,                    # scale factor for clearance rate (m3/yr/g^q) = actual rate for individuals of 1 g
+    q=0.82,                       # allometric exponent for clearance rate
+    h=1e9,                        # scale factor for maximum ingestion rate (g/yr/g^n)
+    #n=2./3.,                     # allometric exponent for maximum ingestion rate
+    alpha=0.2,                    # gross growth efficiency or assimilation efficiency (-)
+    ks=0.,                        # standard metabolism (1/yr/g^p)
+
+    # mortality
+    z0_type=1,                    # type of intrinsic mortality (0=constant, 1=allometric function)
+    z0pre=0.1,                    # scale factor for intrinsic mortality (1/yr/g^z0exp)
+    z0exp=-0.25,                  # allometric exponent for intrinsic mortality
+    z_spre=0.2,                   # scale factor for senescence mortality (1/yr)
+    w_s=1000.,                    # reference ("starting") individual wet mass for senescence mortality (g)
+    z_s=0.3,                      # allometric exponent for senescence mortality
+
+    # recruitment
+    SRR=0,                        # stock-recruitment relationship (0=constant recruitment, 1=equal to reproductive output, 2=Beverton-Holt)
+    recruitment=0.,               # constant recruitment rate for smallest size class (#/yr)
+
+    # fishing
+    fishing_type=1,               # fishing type (0=none, 1: knife-edge, 2: logistic/sigmoid, 3: linearly increasing)
+    w_minF=1.25,                  # minimum individual wet mass for fisheries mortality
+    F=0.4                         # maximum fisheries mortality (knife-edge: constant mortality for individuals > w_minF)
+)
 
 def add_variable(nc: netCDF4.Dataset, name: str, long_name: str, units: str, data=None, dimensions: Optional[tuple[str, ...]]=None, zlib: bool=False, contiguous: bool=True):
     if dimensions is None:
