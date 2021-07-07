@@ -15,7 +15,7 @@ module load jaspy
 conda init bash
 ```
 
-Then log out and back in. Now `conda` should work.
+Then log out and back in. Now `conda` should work. You will not need `module load jaspy` anymore, as `conda init bash` has added the necessary initialization logic to your `.bashrc`. In fact, if you would execute `module load jaspy` again, it breaks your conda environment (that may be a bug that ultimately gets addressed by the JASMIn/JasPy team - it is an issue on 7 July 2021).
 
 To set up the Python environment we will use for processing, first get a local copy of this repository:
 
