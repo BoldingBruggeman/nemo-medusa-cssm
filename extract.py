@@ -170,7 +170,7 @@ if __name__ == '__main__':
    mode = 'r+' if os.path.isfile(arguments.target) and arguments.resume else 'w'
    iout = 0
    ncvariables_out = None
-   with netCDF4.Dataset(arguments.target, mode, clobber=False, diskless=True, persist=True) as ncout:
+   with netCDF4.Dataset(arguments.target, mode) as ncout:
       istart = 0
       if mode != 'w':
          nctime_out = ncout.variables['time_counter']
