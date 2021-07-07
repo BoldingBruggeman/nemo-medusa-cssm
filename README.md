@@ -15,7 +15,7 @@ module load jaspy
 conda init bash
 ```
 
-Then log out and back in. Now `conda` should work. You will not need `module load jaspy` anymore, as `conda init bash` has added the necessary initialization logic to your `.bashrc`. In fact, if you would execute `module load jaspy` again, it breaks your conda environment (that may be a bug that ultimately gets addressed by the JASMIn/JasPy team - it is an issue on 7 July 2021).
+Then log out and back in. Now `conda` should work. You will not need `module load jaspy` anymore, as `conda init bash` has added the necessary initialization logic to your `.bashrc`. In fact, if you would execute `module load jaspy` again, it breaks your conda environment (that may be a bug that ultimately gets addressed by the JASMIN/Jaspy team - it is an issue on 7 July 2021).
 
 To set up the Python environment we will use for processing, first get a local copy of this repository:
 
@@ -67,6 +67,8 @@ On JASMIN, simulations are done on [the `par-multi` queue](https://help.jasmin.a
 sbatch run.sbatch
 ```
 
-You can customize the number of nodes and the maximum runtime by editing `run.sbatch`, or by providing additional arguments `--nodes=<N>` and `--time=<HH:MM:SS>` to `sbatch`.
+**Notes:**
+* Inside `run.sbatch`, the file to operate upon use is configured with the line `name=nemo-medusa-WIO`. This "name" variable is picked up in the final line that calls `run.py`; it sets the input file to `nemo-medusa-WIO.nc` (in the local directory), and the output file to `results/nemo-medusa-WIO.nc`. You can change the "name" variable, or if needed, the input and output paths separately, by editing (a copy of) `run.sbatch`.
+* You can customize the number of nodes and the maximum runtime by editing `run.sbatch`, or by providing additional arguments `--nodes=<N>` and `--time=<HH:MM:SS>` to `sbatch`.
 
 You can check the status of your job as described in the previous section.
