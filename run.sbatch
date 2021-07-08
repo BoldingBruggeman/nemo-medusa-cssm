@@ -6,6 +6,8 @@
 #SBATCH --output=%j.out 
 #SBATCH --error=%j.err
 #SBATCH --time=24:00:00
+##SBATCH --mail-type=ALL
+##SBATCH --mail-user=jorn@bolding-bruggeman.com
 
 conda activate nemo-medusa-cssm
 
@@ -21,7 +23,7 @@ name=nemo-medusa-WIO
 export MKL_NUM_THREADS=1
 
 # run the servers
-srun ppserver.py -w $SLURM_CPUS_ON_NODE -t 3600 -s $secret -p $port -r &
+srun --exclusive ppserver.py -t 3600 -s $secret -p $port -r &
 
 # launch the parallel processing
 mkdir -p results
