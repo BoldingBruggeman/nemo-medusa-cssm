@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --partition=par-multi
-#SBATCH --nodes=16
+#SBATCH --nodes=4
 #SBATCH --ntasks-per-node 1
 #SBATCH --exclusive
 ##SBATCH --cpus-per-task 16
