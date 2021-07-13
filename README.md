@@ -31,7 +31,7 @@ conda activate nemo-medusa-cssm
 source ./install
 ```
 
-This sets up a new, isolated Python environment. Note that this can later be removed if needed with `conda env remove nemo-medusa-cssm`.
+This sets up a new, isolated Python environment. Note that this can later be removed if needed with `conda env remove -n nemo-medusa-cssm`.
 
 ### Extracting NEMO-MEDUSA outputs
 
