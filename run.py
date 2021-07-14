@@ -79,13 +79,13 @@ parameters = dict(
     F=0.4                         # maximum fisheries mortality (knife-edge: constant mortality for individuals > w_minF)
 )
 
-def add_variable(nc: netCDF4.Dataset, name: str, long_name: str, units: str, data=None, dimensions: Optional[tuple[str, ...]]=None, zlib: bool=False, contiguous: bool=True):
+def add_variable(nc: netCDF4.Dataset, name: str, long_name: str, units: str, data=None, dimensions: Optional[tuple[str, ...]]=None, zlib: bool=False, contiguous: bool=True, dtype=numpy.float32):
     if dimensions is None:
         dimensions = (time_name,)
     chunksizes = [1] * len(dimensions)
     if time_name in dimensions:
         chunksizes[dimensions.index(time_name)] = len(nc.dimensions[time_name])
-    ncvar = nc.createVariable(name, float, dimensions, zlib=zlib, fill_value=-2e20, contiguous=contiguous, chunksizes=chunksizes)
+    ncvar = nc.createVariable(name, dtype, dimensions, zlib=zlib, fill_value=-2e20, contiguous=contiguous, chunksizes=chunksizes)
     if data is not None:
         ncvar[:] = data
     ncvar.long_name = long_name
