@@ -43,7 +43,7 @@ sbatch extract.sbatch
 
 **Notes:**
 * Inside this script, the region to process is hard-coded with arguments `--minlon`, `--maxlon`, `--minlat`, `--maxlat`, as is the name of the output file (the unnamed argument to `extract.py`). If you want to extract data for a different region or change the name of the output file, either modify the script in-place, or create a copy and modify that.
-* This script can take a long time! For instance, extracting 1993-2099 at monthly resolution for 20 - 78 degrees East, -38 - 25 degrees North takes 12-15 hours (and on a weekday in July it first spent 19 hours waiting in the queue!) The current maximum runtime is set to 48 hours in `extract.sbatch` with the line `#SBATCH --time=48:00:00`. You may want to change that, e.g., when extracting data at higher temporal resolution. That can be done by editing `extract.sbatch`, or by specifying a custom maximum runtime to sbatch with argument `--time=<HH:MM:SS>`. [Note that the `long-serial` queue currently has a maximum runtime of 168 hours = 7 days.](https://help.jasmin.ac.uk/article/4881-lotus-queues)
+* This script can take a long time! For instance, extracting 1993-2099 at monthly resolution for 20 - 78 degrees East, -38 - 25 degrees North takes 12-15 hours (and on a weekday in July it first spent 19 hours waiting in the queue!) The current maximum runtime is set to 48 hours in `extract.sbatch` with the line `#SBATCH --time=48:00:00`. You may want to change that, e.g., when extracting data for a larger domain and/or at higher temporal resolution. That can be done by editing `extract.sbatch`, or by specifying a custom maximum runtime to sbatch with argument `--time=<HH:MM:SS>`. [Note that the `long-serial` queue currently has a maximum runtime of 168 hours = 7 days.](https://help.jasmin.ac.uk/article/4881-lotus-queues)
 
 After submitting the job, you can check its status with
 
@@ -74,3 +74,5 @@ sbatch run.sbatch
 * Despite all modelled fields being 2D, the output file can become large as some fields are stored separately for every size class (biomass and loss rates). For instance: 40 GB for 38531 grid points, each covering 105 years. This implies about 10 MB per grid point per year. Note that [JASMIN imposes quota of 100 GB on home directories](https://help.jasmin.ac.uk/article/176-storage#home). If you store results for large domains there, you may run out of space!
 
 You can check the status of your job as described in the previous section.
+
+If the simulation completed successfully, `<JOBID>.out` will end with "Closing `results/<NAME>/<NAME>.nc`..."
