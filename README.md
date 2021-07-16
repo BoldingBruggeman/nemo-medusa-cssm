@@ -33,6 +33,13 @@ source ./install
 
 This sets up a new, [isolated Python environment](https://docs.conda.io/projects/conda/en/latest/user-guide/getting-started.html#managing-environments). Note that this can later be removed if needed with `conda env remove -n nemo-medusa-cssm`.
 
+If you additionally want to be able to use this Python environment from [the JASMIN Notebook Service](https://help.jasmin.ac.uk/article/4851-jasmin-notebook-service), for instance for plotting, you need to additionally execute the following commands:
+
+```
+conda install -y -n nemo-medusa-cssm ipykernel
+conda run -n nemo-medusa-cssm python -m ipykernel install --user --name nemo-medusa-cssm
+```
+
 ### Extracting NEMO-MEDUSA outputs
 
 This is done by Python script `extract.py`. As this a non-parallelized job that can take over 24 hours, it is done on [the `long-serial` queue](https://help.jasmin.ac.uk/article/4881-lotus-queues) by submitting it to [the SLURM scheduler](https://help.jasmin.ac.uk/article/4880-batch-scheduler-slurm-overview). For this purpose, the `extract.sbatch` job submission script is provided. Use it like this:
