@@ -3,3 +3,5 @@
 *.nc
 *.out
 *.err
+*.png
+/.ipynb_checkpoints
