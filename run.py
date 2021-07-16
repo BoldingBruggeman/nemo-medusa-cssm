@@ -197,13 +197,12 @@ if __name__ == '__main__':
        os.mkdir(args.output_path)
     for path in glob.glob(args.source_path):
         with netCDF4.Dataset(path) as nc:
+            valid = (nc.variables[temp_name][...] != 0).any(axis=0)
             if 'mask' in nc.variables:
-                mask = nc.variables['mask'][...] > 0
-            else:
-                mask = (nc.variables[temp_name][...] > 0).any(axis=0)
+                valid = numpy.logical_and(valid, nc.variables['mask'][...] > 0)
             for i in range(len(nc.dimensions['x'])):
                 for j in range(len(nc.dimensions['y'])):
-                    if mask[j, i]:
+                    if valid[j, i]:
                         tasks.append((path, i, j))
     if args.ntask is not None:
         tasks = tasks[:args.ntask]
