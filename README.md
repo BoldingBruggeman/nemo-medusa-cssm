@@ -2,6 +2,8 @@
 
 This repository contains scripts for simulation with the Community Size Spectrum Model, driven by the 1/4 degree "ROAM" projections from NEMO-MEDUSA.
 
+This material was created by Jorn Bruggeman as part of a contract from the [National Oceanography Centre](https://noc.ac.uk) to [Bolding & Bruggeman ApS](https://bolding-bruggeman.com/). It is licensed under a [Creative Commons Attribution 4.0 International License](http://creativecommons.org/licenses/by/4.0/).
+
 ## Running on JASMIN
 
 ### Set up
