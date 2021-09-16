@@ -239,7 +239,14 @@ if __name__ == '__main__':
             source2output[source] = ncout
         return source2output[source]
 
-    def save_result(result, sync: bool=True, add_biomass_per_bin: bool=False, save_loss_rates: bool=False):
+    nsaved = 0
+    def save_result(result, sync: Optional[bool]=None, add_biomass_per_bin: bool=True, save_loss_rates: bool=True):
+        if result is None:
+            print('result %i: FAILED!' % nsaved)
+            return
+        print('result %i: saving...' % nsaved)
+
+        global nsaved
         source, i, j, times, biomass, landings, lfi1, lfi80, lfi250, lfi500, lfi10000, bin_masses, spectrum, loss_rates = result
         assert spectrum.shape == loss_rates.shape
         print('saving results from %s, i=%i, j=%i' % (source, i, j))
@@ -255,8 +262,9 @@ if __name__ == '__main__':
             ncout.variables['Nw'][:, j, i, :] = spectrum[:, :]
         if save_loss_rates:
             ncout.variables['loss'][:, j, i, :] = loss_rates[:, :]
-        if sync:
+        if nsaved % 1000 == 0 if sync is None else sync:
            ncout.sync()
+        nsaved += 1
 
     job_server = None
     final_output_path = None
@@ -278,19 +286,9 @@ if __name__ == '__main__':
             final_output_path = args.output_path
             args.output_path = '/dev/shm'
         job_server = pp.Server(ncpus=args.ncpus, ppservers=ppservers, restart=True, secret=args.secret)
-        jobs = []
         for task in tasks:
-            jobs.append(job_server.submit(parallel_process_location, (task, parameters)))
-        ijob = 0
-        while jobs:
-            job = jobs.pop(0)
-            result = job()
-            if result is not None:
-               print('job %i: saving result...' % ijob)
-               save_result(result, sync=ijob % 1000 == 0, add_biomass_per_bin=True, save_loss_rates=True)
-            else:
-               print('job %i: FAILED!' % ijob)
-            ijob += 1
+            job_server.submit(parallel_process_location, (task, parameters), callback=save_result)
+        job_server.wait()
         job_server.print_stats()
 
     for source, nc in source2output.items():
