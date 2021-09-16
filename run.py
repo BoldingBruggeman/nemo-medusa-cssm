@@ -300,6 +300,7 @@ if __name__ == '__main__':
            if os.path.isfile(target):
               os.remove(target)
            shutil.move(os.path.join(args.output_path, name), target)
+    print('All results saved.')
 
     if job_server is not None:
        job_server.destroy()
