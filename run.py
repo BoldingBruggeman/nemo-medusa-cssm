@@ -241,12 +241,12 @@ if __name__ == '__main__':
 
     nsaved = 0
     def save_result(result, sync: Optional[bool]=None, add_biomass_per_bin: bool=True, save_loss_rates: bool=True):
+        global nsaved
         if result is None:
             print('result %i: FAILED!' % nsaved)
             return
         print('result %i: saving...' % nsaved)
 
-        global nsaved
         source, i, j, times, biomass, landings, lfi1, lfi80, lfi250, lfi500, lfi10000, bin_masses, spectrum, loss_rates = result
         assert spectrum.shape == loss_rates.shape
         print('saving results from %s, i=%i, j=%i' % (source, i, j))
