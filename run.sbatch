@@ -3,6 +3,7 @@
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node 1
 #SBATCH --exclusive
+#SBATCH --no-kill
 ##SBATCH --cpus-per-task 16
 #SBATCH --output=%j.out 
 #SBATCH --error=%j.err
