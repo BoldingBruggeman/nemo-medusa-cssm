@@ -2,10 +2,10 @@
 #SBATCH --partition=par-multi
 #SBATCH --nodes=4
 #SBATCH --ntasks-per-node 1
-#SBATCH --exclusive
+##SBATCH --exclusive
 #SBATCH --no-kill
-##SBATCH --cpus-per-task 16
-#SBATCH --output=%j.out 
+#SBATCH --cpus-per-task 24
+#SBATCH --output=%j.out
 #SBATCH --error=%j.err
 #SBATCH --time=24:00:00
 ##SBATCH --mail-type=ALL
@@ -25,7 +25,7 @@ name=nemo-medusa-WIO
 export MKL_NUM_THREADS=1
 
 # run the servers
-srun ppserver.py -t 3600 -s $secret -p $port -r &
+srun --output %j-%3t.out --error %j-%3t.err ppserver.py -w $SLURM_CPUS_PER_TASK -t 3600 -s $secret -p $port -r &
 
 # launch the parallel processing
 mkdir -p results
